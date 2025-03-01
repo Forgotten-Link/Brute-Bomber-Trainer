@@ -1,1 +1,1 @@
-Brute Bomber trainer helper thingy for fuses or soemthing idk -Kerhs
+Brute Bomber trainer helper thingy for fuses or something idk -Kerhs
