@@ -3,16 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mechanic Trainer</title>
+    <title>Fuse Trainer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Click the Correct Position!</h1>
-    <p>Try to solve the mechanic by clicking the correct green circle.</p>
     
+    <!-- Role selection buttons -->
+<div id="role-selection">
+    <button class="role-btn" data-role="MT">MT</button>
+    <button class="role-btn" data-role="OT">OT</button>
+    <button class="role-btn" data-role="H1">H1</button>
+    <button class="role-btn" data-role="H2">H2</button>
+    <button class="role-btn" data-role="M1">M1</button>
+    <button class="role-btn" data-role="M2">M2</button>
+    <button class="role-btn" data-role="R1">R1</button>
+    <button class="role-btn" data-role="R2">R2</button>
+</div>
+<!-- Start button -->
+<button id="start-button" disabled>Start</button>
+<p></p>
+<h1 id="game-title">Choose a role then click start.</h1>   
     <div id="game-container">
-        <img src="background.jpg" alt="Game Background" id="game-background">
+        <!-- Background will be dynamically changed -->
+        <img src="background.jpg" alt="" id="game-background">
         <div id="clickable-area"></div>
     </div>
 
