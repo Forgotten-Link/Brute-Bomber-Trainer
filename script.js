@@ -25,6 +25,25 @@ document.addEventListener("DOMContentLoaded", () => {
         { x: 315, y: 265, marker: "Safe 2nd Quad" }
     ];
 
+    // Generate circles once when the page loads
+    function generateInitialCircles() {
+        clickableArea.innerHTML = ""; // Clear any previous circles
+
+        positions.forEach((pos) => {
+            let circle = document.createElement("div");
+            circle.classList.add("green-circle");
+            circle.style.left = `${pos.x}px`;
+            circle.style.top = `${pos.y}px`;
+            circle.dataset.marker = pos.marker;
+
+            circle.addEventListener("click", (event) => {
+                handleSelection(event.target.dataset.marker);
+            });
+
+            clickableArea.appendChild(circle);
+        });
+    }
+
     // Role selection logic
     roleButtons.forEach(button => {
         button.addEventListener("click", () => {
@@ -45,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Function to start or restart the game while keeping the selected role
+    // Function to start the game while keeping the selected role
     function startGame() {
         step = 1; // Reset game step
 
@@ -63,36 +82,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`Field selected: ${currentField}`);
         console.log(`Shortage Type: ${shortageType}`);
 
-        clickableArea.innerHTML = ""; // Clear previous circles
         feedback.innerText = ""; // Clear previous feedback
-        generateGreenCircles(); // Generate first set of circles
 
         // Change the Start button into a Reset button
         startButton.innerText = "Reset";
-    }
-
-    // Function to generate green circles and attach event listeners correctly
-    function generateGreenCircles() {
-        clickableArea.innerHTML = ""; // Clear previous circles
-
-        positions.forEach((pos) => {
-            let circle = document.createElement("div");
-            circle.classList.add("green-circle");
-            circle.style.left = `${pos.x}px`;
-            circle.style.top = `${pos.y}px`;
-            circle.dataset.marker = pos.marker; // Store marker data
-
-            clickableArea.appendChild(circle);
-        });
-
-        // **Ensure event listeners are always attached properly**
-        setTimeout(() => {
-            document.querySelectorAll(".green-circle").forEach(circle => {
-                circle.addEventListener("click", (event) => {
-                    handleSelection(event.target.dataset.marker);
-                });
-            });
-        }, 50); // Small delay ensures DOM updates correctly
     }
 
     // Function to handle selections based on step
@@ -104,29 +97,36 @@ document.addEventListener("DOMContentLoaded", () => {
             if (shortageType === "DPS Short") {
                 correctMarkersStep1 = { "MT": "Safe 4th Quad", "OT": "Safe 4th Quad", "H1": "Safe 4th Quad", "H2": "Safe 4th Quad", "M1": "D", "M2": "C", "R1": "2", "R2": "4" };
                 correctMarkersStep2 = { "MT": "A", "OT": "B", "H1": "1", "H2": "3", "M1": "Safe 2nd Quad", "M2": "Safe 2nd Quad", "R1": "Safe 2nd Quad", "R2": "Safe 2nd Quad" };
-            } else {
+            } else { // Supports Short
                 correctMarkersStep1 = { "MT": "D", "OT": "C", "H1": "2", "H2": "4", "M1": "Safe 4th Quad", "M2": "Safe 4th Quad", "R1": "Safe 4th Quad", "R2": "Safe 4th Quad" };
                 correctMarkersStep2 = { "MT": "Safe 2nd Quad", "OT": "Safe 2nd Quad", "H1": "Safe 2nd Quad", "H2": "Safe 2nd Quad", "M1": "A", "M2": "B", "R1": "1", "R2": "3" };
+            }
+        } else if (currentField === "img/fieldB.png") {
+            if (shortageType === "DPS Short") {
+                correctMarkersStep1 = { "MT": "Safe 2nd Quad", "OT": "Safe 2nd Quad", "H1": "Safe 2nd Quad", "H2": "Safe 2nd Quad", "M1": "A", "M2": "B", "R1": "2", "R2": "4" };
+                correctMarkersStep2 = { "MT": "D", "OT": "C", "H1": "1", "H2": "3", "M1": "Safe 4th Quad", "M2": "Safe 4th Quad", "R1": "Safe 4th Quad", "R2": "Safe 4th Quad" };
+            } else { // Supports Short
+                correctMarkersStep1 = { "MT": "A", "OT": "B", "H1": "2", "H2": "4", "M1": "Safe 2nd Quad", "M2": "Safe 2nd Quad", "R1": "Safe 2nd Quad", "R2": "Safe 2nd Quad" };
+                correctMarkersStep2 = { "MT": "Safe 4th Quad", "OT": "Safe 4th Quad", "H1": "Safe 4th Quad", "H2": "Safe 4th Quad", "M1": "D", "M2": "C", "R1": "1", "R2": "3" };
             }
         }
 
         if (step === 1 && correctMarkersStep1[selectedRole] === marker) {
             feedback.innerText = `✅ Correct! ${marker} was your first spot.`;
             feedback.style.color = "green";
-            step = 2; // Move to second step
+            step = 2;
             gameTitle.innerText = "Now where do you go?";
 
-            // Change background based on field
             gameContainer.style.background = currentField === "img/fieldA.png" ? 
                 "url('img/fieldA2.png') no-repeat center center" : 
                 "url('img/fieldB2.png') no-repeat center center";
             gameContainer.style.backgroundSize = "cover";
-
-            generateGreenCircles(); // Ensure all spots remain clickable
         } else if (step === 2 && correctMarkersStep2[selectedRole] === marker) {
             feedback.innerText = `🎉 You Win! ${marker} was your final spot.`;
             feedback.style.color = "blue";
             gameTitle.innerText = "Congratulations! You solved the mechanic.";
         }
     }
+
+    generateInitialCircles();
 });
