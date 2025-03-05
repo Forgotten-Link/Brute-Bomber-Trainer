@@ -6,6 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const startButton = document.getElementById("start-button");
     const gameContainer = document.getElementById("game-container");
 
+    // ✅ Create counters
+    let winCounter = 0;
+    let wipeCounter = 0;
+    const counterDisplay = document.createElement("p");
+    counterDisplay.id = "counter-display";
+    counterDisplay.style.fontSize = "18px";
+    counterDisplay.style.fontWeight = "bold";
+    counterDisplay.style.marginBottom = "10px";
+    gameContainer.before(counterDisplay); // Add counter display above game
+
     let selectedRole = null;
     let currentField = null;
     let shortageType = null;
@@ -25,9 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
         { x: 315, y: 265, marker: "Safe 2nd Quad" }
     ];
 
-    // Generate circles once when the page loads
+    // **Update Counter Display**
+    function updateCounter() {
+        counterDisplay.innerText = ` Clears: ${winCounter} |  Wipes: ${wipeCounter}`;
+    }
+
+    // Generate clickable circles
     function generateInitialCircles() {
-        clickableArea.innerHTML = ""; // Clear any previous circles
+        clickableArea.innerHTML = "";
 
         positions.forEach((pos) => {
             let circle = document.createElement("div");
@@ -67,23 +82,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // Function to start the game while keeping the selected role
     function startGame() {
         step = 1; // Reset game step
-
+        feedback.innerText = ""; // Clear previous feedback
+    
         // Randomly set field background
         const fieldImages = ["img/fieldA.png", "img/fieldB.png"];
         currentField = fieldImages[Math.floor(Math.random() * fieldImages.length)];
         gameContainer.style.background = `url('${currentField}') no-repeat center center`;
         gameContainer.style.backgroundSize = "cover";
-
+    
         // Randomly decide if DPS or Supports are short
         const shortages = ["DPS Short", "Supports Short"];
         shortageType = shortages[Math.floor(Math.random() * shortages.length)];
-
-        gameTitle.innerText = `${shortageType} - Choose the correct spot!`;
+    
+        // Also display the long role
+        let longType = shortageType === "DPS Short" ? "Supports Long" : "DPS Long";
+        gameTitle.innerText = `${shortageType} - ${longType} - Choose the correct spot!`;
+    
         console.log(`Field selected: ${currentField}`);
         console.log(`Shortage Type: ${shortageType}`);
-
-        feedback.innerText = ""; // Clear previous feedback
-
+    
         // Change the Start button into a Reset button
         startButton.innerText = "Reset";
     }
@@ -92,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleSelection(marker) {
         let correctMarkersStep1 = {};
         let correctMarkersStep2 = {};
-
+    
         if (currentField === "img/fieldA.png") {
             if (shortageType === "DPS Short") {
                 correctMarkersStep1 = { "MT": "Safe 4th Quad", "OT": "Safe 4th Quad", "H1": "Safe 4th Quad", "H2": "Safe 4th Quad", "M1": "D", "M2": "C", "R1": "2", "R2": "4" };
@@ -110,23 +127,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 correctMarkersStep2 = { "MT": "Safe 4th Quad", "OT": "Safe 4th Quad", "H1": "Safe 4th Quad", "H2": "Safe 4th Quad", "M1": "D", "M2": "C", "R1": "1", "R2": "3" };
             }
         }
-
+    
+        // If player picks the correct spot in Step 1
         if (step === 1 && correctMarkersStep1[selectedRole] === marker) {
             feedback.innerText = `✅ Correct! ${marker} was your first spot.`;
             feedback.style.color = "green";
             step = 2;
             gameTitle.innerText = "Now where do you go?";
-
-            gameContainer.style.background = currentField === "img/fieldA.png" ? 
-                "url('img/fieldA2.png') no-repeat center center" : 
-                "url('img/fieldB2.png') no-repeat center center";
+    
+            //  **Update background image for Step 2**
+            gameContainer.style.background = currentField === "img/fieldA.png" 
+                ? "url('img/fieldA2.png') no-repeat center center" 
+                : "url('img/fieldB2.png') no-repeat center center";
             gameContainer.style.backgroundSize = "cover";
-        } else if (step === 2 && correctMarkersStep2[selectedRole] === marker) {
+        } 
+    
+        // If player picks the correct spot in Step 2
+        else if (step === 2 && correctMarkersStep2[selectedRole] === marker) {
             feedback.innerText = `🎉 You Win! ${marker} was your final spot.`;
             feedback.style.color = "blue";
             gameTitle.innerText = "Congratulations! You solved the mechanic.";
+            winCounter++; // 
+            updateCounter();
+        } 
+        
+        // If the player clicks the wrong spot
+        else {
+            feedback.innerText = `❌ Wrong spot! Try again.`;
+            feedback.style.color = "red";
+            wipeCounter++; 
+            updateCounter();
         }
     }
 
     generateInitialCircles();
+    updateCounter(); // Ensure counter is displayed from start
 });
